@@ -1,0 +1,33 @@
+service: quiz-creator-backend
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-plugin-scripts
+
+custom:
+  dotenv:
+    path: .env
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  memorySize: 512
+  timeout: 30
+  region: ap-south-1
+  stage: ${opt:stage, 'dev'}
+  logRetentionInDays: 30
+  logs:
+    httpApi: true
+  httpApi:
+    cors: true
+
+
+functions:
+  app:
+    handler: dist/lambda.handler
+    environment:
+      NODE: production
+      STAGE: ${self:provider.stage}
+    events:
+      - http: ANY /
+      - http: ANY /{proxy+}
