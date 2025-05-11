@@ -9,5 +9,5 @@
     "skipLibCheck": true,
     "typeRoots": ["./node_modules/@types", "./src/types"]
   },
-  "include": ["src/**/*.ts", "lambda.ts"]
+  "include": ["src/**/*.ts"]
 }
