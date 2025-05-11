@@ -39,43 +39,6 @@ const Home = () => {
     }
   };
 
-  const handleSuggestedTopic = async (suggestedTopic: string) => {
-    setTopic(suggestedTopic);
-
-    setIsGenerating(true);
-
-    try {
-      const quiz = await generateQuiz(suggestedTopic);
-
-      sessionStorage.setItem("quizData", JSON.stringify(quiz));
-      sessionStorage.setItem("quizTopic", suggestedTopic);
-
-      navigate(`/quiz/${quiz.quizId}`);
-    } catch (error) {
-      toast.error((error as Error).message);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const suggestedTopics = [
-    {
-      topic: "General Knowledge",
-      description: "Test your knowledge across a variety of subjects",
-      icon: <BookOpen size={20} />,
-    },
-    {
-      topic: "Science",
-      description: "Explore topics in biology, chemistry, and physics",
-      icon: <PieChart size={20} />,
-    },
-    {
-      topic: "History",
-      description: "Journey through significant historical events",
-      icon: <BarChart2 size={20} />,
-    },
-  ];
-
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -116,22 +79,6 @@ const Home = () => {
               </form>
             </CardContent>
           </Card>
-
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold">Suggested Topics</h2>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {suggestedTopics.map((item) => (
-                <TopicCard
-                  key={item.topic}
-                  topic={item.topic}
-                  description={item.description}
-                  icon={item.icon}
-                  onClick={() => handleSuggestedTopic(item.topic)}
-                  disabled={isGenerating}
-                />
-              ))}
-            </div>
-          </div>
         </div>
       </main>
 
