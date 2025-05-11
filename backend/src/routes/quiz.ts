@@ -38,7 +38,15 @@ router.get('/generate', async (req: Request, res: Response) => {
 
         console.log(`Generating new quiz for topic: ${topic}`);
 
-        const aiResponse = await axios.post(`${AI_SERVICE_URL}/generate-quiz`, { topic });
+        const aiResponse = await axios.post(
+            `${AI_SERVICE_URL}/generate-quiz`,
+            { topic }, 
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
         const generatedQuestions = aiResponse.data.questions;
 
         const quizId = nanoid(10);
@@ -70,7 +78,7 @@ router.get('/generate', async (req: Request, res: Response) => {
 router.post('/grade', async (req: Request, res: Response) => {
     try {
         const quizId = req.query.quizId as string;
-        
+
         const { answers } = req.body;
 
         if (!quizId) {
@@ -81,7 +89,7 @@ router.post('/grade', async (req: Request, res: Response) => {
         }
 
         const quiz = await Quiz.findOne({ quizId });
-        
+
         if (!quiz) {
             return res.status(404).json({ error: 'Quiz not found' });
         }
