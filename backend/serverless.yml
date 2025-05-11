@@ -31,3 +31,4 @@ functions:
     events:
       - http: ANY /
       - http: ANY /{proxy+}
+

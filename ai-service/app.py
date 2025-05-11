@@ -1,47 +1,29 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import List, Dict
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 import os
+import json
 import openai
 from dotenv import load_dotenv
-import json
 
 load_dotenv()
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-app = FastAPI(title="Quiz Creator AI Service")
+app = Flask(__name__)
+CORS(app)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-class QuizRequest(BaseModel):
-    topic: str
-
-class Question(BaseModel):
-    id: int
-    text: str
-    options: List[str]
-    correctAnswer: str
-
-class QuizResponse(BaseModel):
-    questions: List[Question]
-
-@app.get("/health")
+@app.route('/health')
 def health_check():
-    return {"status": "ok"}
+    return jsonify({"status": "ok"})
 
-@app.post("/generate-quiz", response_model=QuizResponse)
-async def generate_quiz(request: QuizRequest):
+
+@app.route('/generate-quiz', methods=['POST'])
+async def generate_quiz():
     try:
+        data = request.get_json()
+        topic = data.get('topic', '')
         prompt = f"""
-        Create a multiple-choice quiz with 5 questions about {request.topic}.
+        Create a multiple-choice quiz with 5 questions about {topic}.
         For each question:
         1. Write a clear, concise question
         2. Provide exactly 4 options labeled A, B, C, and D
@@ -79,12 +61,11 @@ async def generate_quiz(request: QuizRequest):
         if "questions" not in quiz_data or len(quiz_data["questions"]) != 5:
             raise ValueError("Invalid quiz format returned by AI")
             
-        return quiz_data
+        return jsonify(quiz_data)
     except Exception as e:
         print(f"Error generating quiz: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to generate quiz")
+        return jsonify({"error": str(e)}), 500
     
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
 
