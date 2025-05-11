@@ -4,10 +4,11 @@ import os
 import json
 import openai
 from dotenv import load_dotenv
+import logging
 
 load_dotenv()
-
-openai.api_key = os.getenv("OPENAI_API_KEY")
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 CORS(app)
@@ -22,6 +23,9 @@ async def generate_quiz():
     try:
         data = request.get_json()
         topic = data.get('topic', '')
+
+        logger.info(f"Topic: {topic}")
+        
         prompt = f"""
         Create a multiple-choice quiz with 5 questions about {topic}.
         For each question:
@@ -40,11 +44,11 @@ async def generate_quiz():
         ... and so on for 5 questions
         ]
         }}
-        Make sure the questions are accurate, challenging but fair, and cover different aspects of {request.topic}.
+        Make sure the questions are accurate, challenging but fair, and cover different aspects of {topic}.
         """
         
         client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        
+
         response = client.chat.completions.create(
             model="gpt-4.1",
             messages=[
